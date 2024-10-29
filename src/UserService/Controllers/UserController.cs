@@ -6,6 +6,7 @@ using UserService.Domain.Interfaces.Services;
 
 namespace UserService.Controllers
 {
+	[Authorize]
 	[ApiController]
 	[Route("api/")]
 	public class UserController : ControllerBase
@@ -37,7 +38,6 @@ namespace UserService.Controllers
 			return Ok(user);
 		}
 
-		[Authorize]
 		[HttpGet("users")]
 		public async Task<IActionResult> Get(CancellationToken cancellationToken)
 		{
