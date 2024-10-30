@@ -13,4 +13,5 @@ static IHostBuilder CreateHostBuilder(string[] args) =>
 		webBuilder =>
 		{
 			webBuilder.UseStartup<Startup>();
+			webBuilder.UseUrls("http://*:36801");
 		});

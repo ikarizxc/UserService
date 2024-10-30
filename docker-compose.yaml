@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  userservice:
+    image: userservice
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+    expose:
+      - "36801"
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: userservicepass
+      POSTGRES_DB: UserServiceDB
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - userservice
+
+volumes:
+  postgres_data:
+
+
+# docker-compose down -v --rmi all --remove-orphans
