@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using UserService.Domain.Interfaces.Repositories;
 using UserService.Domain.Models;
 using UserService.Infrastructure.Database;
 
-namespace UserService.Repository
+namespace UserService.Infrastructure.Repository
 {
 	public class AuthRepository : IAuthRepository
 	{

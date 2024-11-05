@@ -1,10 +1,9 @@
-﻿using System.Diagnostics;
-using UserService.Domain.DTOs;
+﻿using UserService.Domain.DTOs;
 using UserService.Domain.Interfaces.Repositories;
 using UserService.Domain.Interfaces.Services;
 using UserService.Domain.Models;
 
-namespace UserService.Services
+namespace UserService.Domain.Services
 {
 	public class UserService : IUserService
 	{
@@ -19,8 +18,8 @@ namespace UserService.Services
 
 		public async Task<bool> CreateUserAsync(UserCreateDTO userDTO, CancellationToken cancellationToken)
 		{
-			var userWithUsername = await _userRepository.GetByUsernameAsync(userDTO.Username, cancellationToken);
-			if (userWithUsername != null)
+			var existedUser = await _userRepository.GetByUsernameAsync(userDTO.Username, cancellationToken);
+			if (existedUser != null)
 			{
 				return false;
 			}

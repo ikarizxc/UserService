@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using UserService.Domain.DTOs;
+﻿using UserService.Domain.DTOs;
 using UserService.Domain.Interfaces.Repositories;
 using UserService.Domain.Interfaces.Services;
 using UserService.Domain.Models;
 
-namespace UserService.Services
+namespace UserService.Domain.Services
 {
 	public class AuthService : IAuthService
 	{
@@ -12,17 +11,20 @@ namespace UserService.Services
 		private readonly IAuthRepository _authRepository;
 		private readonly ITokenService _tokenService;
 		private readonly IPasswordService _passwordService;
+		private readonly IPasswordService _passwordHasher;
 
 		public AuthService(
 			IUserRepository userRepository, 
 			ITokenService tokenService, 
 			IPasswordService passwordService,
-			IAuthRepository authRepository)
+			IAuthRepository authRepository,
+			IPasswordService passwordHasher)
         {
             _userRepository = userRepository;
 			_tokenService = tokenService;
 			_passwordService = passwordService;
 			_authRepository = authRepository;
+			_passwordHasher = passwordHasher;
 		}
 
         public async Task<TokenResponseDTO?> GenerateTokenAsync(UserLoginDTO userLoginDTO, CancellationToken cancellationToken)
@@ -102,6 +104,26 @@ namespace UserService.Services
 				RefreshToken = refreshToken.Token,
 				Type = "Bearer"
 			};
+		}
+
+		public async Task RegisterUserAsync(UserRegistrationDTO userRegistrationDTO, CancellationToken cancellationToken)
+		{
+			var existedUser = await _userRepository.GetByUsernameAsync(userRegistrationDTO.Username, cancellationToken);
+			if (existedUser != null)
+			{
+				return;
+			}
+
+			var user = new User()
+			{
+				Id = Guid.NewGuid(),
+				Username = userRegistrationDTO.Username,
+				PasswordHash = _passwordHasher.HashPassword(userRegistrationDTO.Password),
+				CreatedAt = DateTime.UtcNow,
+			};
+
+			await _userRepository.AddAsync(user, cancellationToken);
+			return;
 		}
 	}
 }

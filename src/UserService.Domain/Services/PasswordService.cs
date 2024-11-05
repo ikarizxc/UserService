@@ -2,7 +2,7 @@
 using System.Text;
 using UserService.Domain.Interfaces.Services;
 
-namespace UserService.Services
+namespace UserService.Domain.Services
 {
 	public class PasswordService : IPasswordService
 	{

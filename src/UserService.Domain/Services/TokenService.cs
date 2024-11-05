@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -7,33 +6,29 @@ using System.Security.Cryptography;
 using System.Text;
 using UserService.Domain.Interfaces.Services;
 using UserService.Domain.Models;
+using UserService.Domain.Options;
 
-namespace UserService.Services
+namespace UserService.Domain.Services
 {
 	public class TokenService : ITokenService
 	{
-		private readonly IConfiguration _configuration;
+		private readonly IOptions<JwtOptions> _jwtOptions;
 
-        public TokenService(IConfiguration configuration)
+        public TokenService(IOptions<JwtOptions> jwtOptions)
         {
-			_configuration = configuration;
+			_jwtOptions = jwtOptions;
 		}
 
         public string GenerateAccessToken(User user)
 		{
 			var tokenHandler = new JwtSecurityTokenHandler();
 
-			var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]));
-
-			if (!Double.TryParse(_configuration["Jwt:LifeMinutes"], out var lifeMinutes))
-			{
-				lifeMinutes = 15;
-			}
+			var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtOptions.Value.Key));
 
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
 				Subject = new ClaimsIdentity(new[] { new Claim("sub", user.Id.ToString()) }),
-				Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(lifeMinutes)),
+				Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(_jwtOptions.Value.LifeTimeMin)),
 				SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
 			};
 

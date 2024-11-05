@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using UserService.Domain.DTOs;
 using UserService.Domain.Interfaces.Services;
 

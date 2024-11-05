@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using UserService.Domain.Interfaces.Repositories;
 using UserService.Domain.Interfaces.Services;
+using UserService.Domain.Options;
+using UserService.Domain.Services;
 using UserService.Infrastructure.Database;
-using UserService.Repository;
-using UserService.Services;
+using UserService.Infrastructure.Repository;
 
 namespace UserService
 {
@@ -23,33 +24,38 @@ namespace UserService
 
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddDbContext<UserServiceDbContext>(
-				options =>
-				{
-					options.UseNpgsql(_configuration.GetConnectionString("Postgres"));
-				});
-
-			string? secretKey = _configuration["Jwt:Key"];
-			if (secretKey == null)
+			services.AddDbContext<UserServiceDbContext>(options =>
 			{
-				// обработать мб надо
-			}
+				options.UseNpgsql(_configuration.GetConnectionString("Postgres"));
+			});
+
+			var sp = services.BuildServiceProvider();
+
+			var dbContext = sp.GetService<UserServiceDbContext>();
+			dbContext.Database.Migrate();
+
+			services.Configure<JwtOptions>(_configuration.GetSection(nameof(JwtOptions)));
+			var jwtOptions = _configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
 
 			services.AddAuthorization();
-			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-				.AddJwtBearer(options =>
+			services.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			})
+			.AddJwtBearer(options =>
+			{
+				options.TokenValidationParameters = new TokenValidationParameters
 				{
-					options.TokenValidationParameters = new TokenValidationParameters
-					{
-						ValidateIssuer = false,
-						ValidateAudience = false,
-						ValidateLifetime = true,
-						ClockSkew = TimeSpan.Zero,
+					ValidateIssuer = false,
+					ValidateAudience = false,
+					ValidateLifetime = true,
+					ClockSkew = TimeSpan.Zero,
 
-						ValidateIssuerSigningKey = true,
-						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-					};
-				});
+					ValidateIssuerSigningKey = true,
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+				};
+			});
 
 			services.AddSwaggerGen(options =>
 			{
@@ -82,7 +88,7 @@ namespace UserService
 			services.AddControllers();
 			services.AddSwaggerGen();
 
-			services.AddScoped<IUserService, Services.UserService>();
+			services.AddScoped<IUserService, Domain.Services.UserService>();
 			services.AddScoped<IUserRepository, UserRepository>();
 			services.AddScoped<IAuthService, AuthService>();
 			services.AddScoped<IAuthRepository, AuthRepository>();

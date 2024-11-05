@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UserService.Domain.DTOs;
 using UserService.Domain.Interfaces.Services;
-using UserService.Domain.Models;
 
 namespace UserService.Controllers
 {
@@ -16,11 +15,13 @@ namespace UserService.Controllers
 			_authService = authService;
 		}
 
-		//[HttpPost("auth/register")]
-		//public async Task<IActionResult> Register([FromBody] UserRegistrationDTO userRegistrationDto, CancellationToken cancellationToken)
-		//{
-		//	return Ok();
-		//}
+		[HttpPost("auth/register")]
+		public async Task<IActionResult> Register([FromBody] UserRegistrationDTO userRegistrationDto, CancellationToken cancellationToken)
+		{
+			await _authService.RegisterUserAsync(userRegistrationDto, cancellationToken);
+
+			return Ok();
+		}
 
 		[HttpPost("auth/login")]
 		public async Task<IActionResult> Login([FromBody] UserLoginDTO userLoginDto, CancellationToken cancellationToken)
