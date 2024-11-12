@@ -11,7 +11,7 @@ using UserService.Domain.Services;
 using UserService.Infrastructure.Database;
 using UserService.Infrastructure.Repository;
 
-namespace UserService
+namespace UserService.API
 {
 	public class Startup
 	{

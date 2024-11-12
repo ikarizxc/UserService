@@ -4,7 +4,7 @@ using UserService.Domain.DTOs;
 using UserService.Domain.Exceptions;
 using UserService.Domain.Interfaces.Services;
 
-namespace UserService.Controllers
+namespace UserService.API.Controllers
 {
 	[ApiController]
 	[Route("api/")]

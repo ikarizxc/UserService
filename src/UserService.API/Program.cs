@@ -1,5 +1,4 @@
-using UserService;
-using UserService.Infrastructure.Database;
+using UserService.API;
 
 CreateHostBuilder(args).Build().Run();
 

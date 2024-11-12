@@ -17,7 +17,7 @@ namespace UserService.Domain.Services
 			_passwordHasher = passwordHasher;
 		}
 
-		public async Tas CreateUserAsync(UserCreateDTO userDTO, CancellationToken cancellationToken)
+		public async Task CreateUserAsync(UserCreateDTO userDTO, CancellationToken cancellationToken)
 		{
 			var existedUser = await _userRepository.GetByUsernameAsync(userDTO.Username, cancellationToken);
 			if (existedUser != null)
