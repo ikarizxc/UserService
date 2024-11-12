@@ -19,7 +19,7 @@ namespace UserService.Infrastructure.Database.Configurations
 					r => r.HasOne<Role>().WithMany().HasForeignKey(x => x.RoleId));
 
 			var roles = Enum
-				.GetValues<Roles>()
+				.GetValues<RoleEnum>()
 				.Select(r => new Permission
 				{
 					Id = (int)r,

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using UserService.Domain.Interfaces.Repositories;
 using UserService.Domain.Interfaces.Services;
@@ -50,6 +51,8 @@ namespace UserService.API
 
 					ValidateIssuerSigningKey = true,
 					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+
+					NameClaimType = JwtRegisteredClaimNames.Sub
 				};
 			});
 
@@ -88,6 +91,7 @@ namespace UserService.API
 			services.AddScoped<IUserRepository, UserRepository>();
 			services.AddScoped<IAuthService, AuthService>();
 			services.AddScoped<IAuthRepository, AuthRepository>();
+			services.AddScoped<IPermissionService, PermissionService>();
 
 			services.AddSingleton<ITokenService, TokenService>();
 			services.AddSingleton<IPasswordService, PasswordService>();

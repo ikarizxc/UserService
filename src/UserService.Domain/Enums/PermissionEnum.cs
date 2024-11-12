@@ -1,7 +1,7 @@
 ﻿
 namespace UserService.Domain.Enums
 {
-	public enum Permissions
+	public enum PermissionEnum
 	{
 		Read = 1,
 		Create = 2,

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using UserService.Domain.Enums;
 using UserService.Domain.Interfaces.Repositories;
 using UserService.Domain.Models;
 using UserService.Infrastructure.Database;
@@ -16,6 +17,11 @@ namespace UserService.Infrastructure.Repository
 		public async Task AddAsync(User user, CancellationToken cancellationToken)
 		{
 			await _dbContext.Users.AddAsync(user, cancellationToken);
+			await _dbContext.UserRole.AddAsync(new UserRole
+			{
+				UserId = user.Id,
+				RoleId = (int)RoleEnum.User,
+			});
 			await _dbContext.SaveChangesAsync(cancellationToken);
 		}
 
@@ -44,6 +50,23 @@ namespace UserService.Infrastructure.Repository
 		{
 			_dbContext.Users.Update(user);
 			await _dbContext.SaveChangesAsync(cancellationToken);
+		}
+
+		public async Task<HashSet<PermissionEnum>> GetPermissions(Guid userId)
+		{
+			var roles = await _dbContext.Users
+				.AsNoTracking()
+				.Include(x => x.Roles)
+				.ThenInclude(x => x.Permissions)
+				.Where(x => x.Id == userId)
+				.Select(x => x.Roles)
+				.ToListAsync();
+
+			return roles
+				.SelectMany(x => x)
+				.SelectMany(x => x.Permissions)
+				.Select(x => (PermissionEnum)x.Id)
+				.ToHashSet();
 		}
 	}
 }

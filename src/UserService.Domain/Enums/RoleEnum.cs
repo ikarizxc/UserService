@@ -1,7 +1,7 @@
 ﻿
 namespace UserService.Domain.Enums
 {
-	public enum Roles
+	public enum RoleEnum
 	{
 		Admin = 1,
 		User = 2,

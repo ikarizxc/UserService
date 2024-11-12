@@ -12,20 +12,17 @@ namespace UserService.Domain.Services
 		private readonly IAuthRepository _authRepository;
 		private readonly ITokenService _tokenService;
 		private readonly IPasswordService _passwordService;
-		private readonly IPasswordService _passwordHasher;
 
 		public AuthService(
 			IUserRepository userRepository, 
 			ITokenService tokenService, 
 			IPasswordService passwordService,
-			IAuthRepository authRepository,
-			IPasswordService passwordHasher)
+			IAuthRepository authRepository)
         {
             _userRepository = userRepository;
 			_tokenService = tokenService;
 			_passwordService = passwordService;
 			_authRepository = authRepository;
-			_passwordHasher = passwordHasher;
 		}
 
         public async Task<TokenResponseDTO> GenerateTokenAsync(UserLoginDTO userLoginDTO, CancellationToken cancellationToken)
@@ -119,7 +116,7 @@ namespace UserService.Domain.Services
 			{
 				Id = Guid.NewGuid(),
 				Username = userRegistrationDTO.Username,
-				PasswordHash = _passwordHasher.HashPassword(userRegistrationDTO.Password),
+				PasswordHash = _passwordService.HashPassword(userRegistrationDTO.Password),
 				CreatedAt = DateTime.UtcNow,
 			};
 

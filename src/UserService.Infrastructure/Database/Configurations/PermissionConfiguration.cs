@@ -12,7 +12,7 @@ namespace UserService.Infrastructure.Database.Configurations
 			builder.HasKey(x => x.Id);
 
 			var permissions = Enum
-				.GetValues<Permissions>()
+				.GetValues<PermissionEnum>()
 				.Select(x => new Permission
 				{
 					Id = (int)x,

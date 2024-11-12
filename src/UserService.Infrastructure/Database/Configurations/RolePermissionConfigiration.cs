@@ -29,8 +29,8 @@ namespace UserService.Infrastructure.Database.Configurations
 				.SelectMany(x => x.Permissions
 					.Select(p => new RolePermission
 					{
-						RoleId = (int)Enum.Parse<Roles>(x.Role),
-						PermissionId = (int)Enum.Parse<Permissions>(p),
+						RoleId = (int)Enum.Parse<RoleEnum>(x.Role),
+						PermissionId = (int)Enum.Parse<PermissionEnum>(p),
 					}))
 				.ToArray();
 		}

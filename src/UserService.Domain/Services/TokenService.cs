@@ -27,7 +27,10 @@ namespace UserService.Domain.Services
 
 			var tokenDescriptor = new SecurityTokenDescriptor
 			{
-				Subject = new ClaimsIdentity(new[] { new Claim("sub", user.Id.ToString()) }),
+				Subject = new ClaimsIdentity(new[]
+				{
+					new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+				}),
 				Expires = DateTime.UtcNow.Add(TimeSpan.FromMinutes(_jwtOptions.Value.LifeTimeMin)),
 				SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
 			};

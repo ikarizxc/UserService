@@ -1,4 +1,5 @@
-﻿using UserService.Domain.Models;
+﻿using UserService.Domain.Enums;
+using UserService.Domain.Models;
 
 namespace UserService.Domain.Interfaces.Repositories
 {
@@ -15,5 +16,7 @@ namespace UserService.Domain.Interfaces.Repositories
 		Task DeleteAsync(User user, CancellationToken cancellationToken);
 
 		Task UpdateAsync(User user, CancellationToken cancellationToken);
+
+		Task<HashSet<PermissionEnum>> GetPermissions(Guid userId);
 	}
 }

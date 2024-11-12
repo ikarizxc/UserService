@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserService.API.AuthorizePermissionExtension;
 using UserService.Domain.DTOs;
 using UserService.Domain.Exceptions;
 using UserService.Domain.Interfaces.Services;
@@ -17,6 +18,7 @@ namespace UserService.API.Controllers
 			_userService = userService;
 		}
 
+		[AuthorizePermission(Domain.Enums.PermissionEnum.Create)]
 		[HttpPost("users")]
 		public async Task<IActionResult> Create([FromBody] UserCreateDTO user, CancellationToken cancellationToken)
 		{
@@ -32,6 +34,7 @@ namespace UserService.API.Controllers
 			return Ok();
 		}
 
+		[AuthorizePermission(Domain.Enums.PermissionEnum.Read)]
 		[HttpGet("users/{id:guid}")]
 		public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
 		{
@@ -48,7 +51,8 @@ namespace UserService.API.Controllers
 			return Ok(user);
 		}
 
-		[Authorize]
+
+		[AuthorizePermission(Domain.Enums.PermissionEnum.Read)]
 		[HttpGet("users")]
 		public async Task<IActionResult> Get(CancellationToken cancellationToken)
 		{
@@ -61,6 +65,7 @@ namespace UserService.API.Controllers
 			return Ok(users);
 		}
 
+		[AuthorizePermission(Domain.Enums.PermissionEnum.Delete)]
 		[HttpDelete("users/{id:guid}")]
 		public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
 		{
@@ -76,6 +81,7 @@ namespace UserService.API.Controllers
 			return Ok();
 		}
 
+		[AuthorizePermission(Domain.Enums.PermissionEnum.Update)]
 		[HttpPut("users")]
 		public async Task<IActionResult> Update([FromBody] UserDTO user, CancellationToken cancellationToken)
 		{
