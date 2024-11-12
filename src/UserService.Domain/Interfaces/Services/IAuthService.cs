@@ -5,8 +5,8 @@ namespace UserService.Domain.Interfaces.Services
 {
 	public interface IAuthService
 	{
-		Task<TokenResponseDTO?> GenerateTokenAsync(UserLoginDTO userLoginDTO, CancellationToken cancellationToken);
-		Task<TokenResponseDTO?> RefreshTokenAsync(RefreshTokenDTO token, CancellationToken cancellationToken);
+		Task<TokenResponseDTO> GenerateTokenAsync(UserLoginDTO userLoginDTO, CancellationToken cancellationToken);
+		Task<TokenResponseDTO> RefreshTokenAsync(RefreshTokenDTO token, CancellationToken cancellationToken);
 		Task RegisterUserAsync(UserRegistrationDTO userRegistrationDTO, CancellationToken cancellationToken);
 	}
 }

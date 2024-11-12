@@ -1,4 +1,5 @@
 ﻿using UserService.Domain.DTOs;
+using UserService.Domain.Exceptions;
 using UserService.Domain.Interfaces.Repositories;
 using UserService.Domain.Interfaces.Services;
 using UserService.Domain.Models;
@@ -27,18 +28,18 @@ namespace UserService.Domain.Services
 			_passwordHasher = passwordHasher;
 		}
 
-        public async Task<TokenResponseDTO?> GenerateTokenAsync(UserLoginDTO userLoginDTO, CancellationToken cancellationToken)
+        public async Task<TokenResponseDTO> GenerateTokenAsync(UserLoginDTO userLoginDTO, CancellationToken cancellationToken)
 		{
 			var user = await _userRepository.GetByUsernameAsync(userLoginDTO.Username, cancellationToken);
 			if (user == null)
 			{
-				return null;
+				throw new WrongCredentialsException();
 			}
 
 			var isCorrect = _passwordService.VerifyPassword(userLoginDTO.Password, user.PasswordHash);
 			if (!isCorrect)
 			{
-				return null;
+				throw new WrongCredentialsException();
 			}
 
 			var oldRefreshToken = await _authRepository.GetByUserIdAsync(user.Id, cancellationToken);
@@ -68,25 +69,25 @@ namespace UserService.Domain.Services
 			};
 		}
 
-		public async Task<TokenResponseDTO?> RefreshTokenAsync(RefreshTokenDTO refreshTokenDTO, CancellationToken cancellationToken)
+		public async Task<TokenResponseDTO> RefreshTokenAsync(RefreshTokenDTO refreshTokenDTO, CancellationToken cancellationToken)
 		{
 			var refreshToken = await _authRepository.GetAsync(refreshTokenDTO.RefreshToken, cancellationToken);
 			if (refreshToken == null)
 			{
-				return null;
+				throw new WrongRefreshTokenException();
 			}
 
 			if (refreshToken.ExpiryDate < DateTime.UtcNow)
 			{
 				await _authRepository.DeleteAsync(refreshToken, cancellationToken);
-				return null;
+				throw new WrongRefreshTokenException();
 			}
 
 			var user = await _userRepository.GetByIdAsync(refreshToken.UserId, cancellationToken);
 			if (user == null)
 			{
 				await _authRepository.DeleteAsync(refreshToken, cancellationToken);
-				return null;
+				throw new WrongRefreshTokenException();
 			}
 
 			var accessToken = _tokenService.GenerateAccessToken(user);
@@ -111,7 +112,7 @@ namespace UserService.Domain.Services
 			var existedUser = await _userRepository.GetByUsernameAsync(userRegistrationDTO.Username, cancellationToken);
 			if (existedUser != null)
 			{
-				return;
+				throw new CredentialsInUseException();
 			}
 
 			var user = new User()

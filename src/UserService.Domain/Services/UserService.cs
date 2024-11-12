@@ -1,4 +1,5 @@
 ﻿using UserService.Domain.DTOs;
+using UserService.Domain.Exceptions;
 using UserService.Domain.Interfaces.Repositories;
 using UserService.Domain.Interfaces.Services;
 using UserService.Domain.Models;
@@ -16,12 +17,12 @@ namespace UserService.Domain.Services
 			_passwordHasher = passwordHasher;
 		}
 
-		public async Task<bool> CreateUserAsync(UserCreateDTO userDTO, CancellationToken cancellationToken)
+		public async Tas CreateUserAsync(UserCreateDTO userDTO, CancellationToken cancellationToken)
 		{
 			var existedUser = await _userRepository.GetByUsernameAsync(userDTO.Username, cancellationToken);
 			if (existedUser != null)
 			{
-				return false;
+				throw new CredentialsInUseException();
 			}
 
 			var user = new User()
@@ -33,7 +34,6 @@ namespace UserService.Domain.Services
 			};
 
 			await _userRepository.AddAsync(user, cancellationToken); 
-			return true;
 		}
 
 		public async Task DeleteUserAsync(Guid id, CancellationToken cancellationToken)
@@ -41,19 +41,19 @@ namespace UserService.Domain.Services
 			var user = await _userRepository.GetByIdAsync(id, cancellationToken);
 			if (user == null)
 			{
-				return;
+				throw new NotFoundException();
 			}
 
 			await _userRepository.DeleteAsync(user, cancellationToken);
 		}
 
-		public async Task<UserDTO?> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
+		public async Task<UserDTO> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
 		{
 			var user = await _userRepository.GetByIdAsync(id, cancellationToken);
 
 			if (user == null)
 			{
-				return null;
+				throw new NotFoundException();
 			}
 
 			return new UserDTO()
@@ -74,13 +74,13 @@ namespace UserService.Domain.Services
 			var user = await _userRepository.GetByIdAsync(userDTO.Id, cancellationToken);
 			if (user == null)
 			{
-				return;
+				throw new NotFoundException();
 			}
 
 			var userWithUsername = await _userRepository.GetByUsernameAsync(userDTO.Username, cancellationToken);
 			if (userWithUsername != null)
 			{
-				return;
+				throw new CredentialsInUseException();
 			}
 
 			user.Username = userDTO.Username;

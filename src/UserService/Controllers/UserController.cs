@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserService.Domain.DTOs;
+using UserService.Domain.Exceptions;
 using UserService.Domain.Interfaces.Services;
 
 namespace UserService.Controllers
@@ -19,16 +20,27 @@ namespace UserService.Controllers
 		[HttpPost("users")]
 		public async Task<IActionResult> Create([FromBody] UserCreateDTO user, CancellationToken cancellationToken)
 		{
-			var result = await _userService.CreateUserAsync(user, cancellationToken);
-			return result ?
-				Ok() : Conflict();
+			try
+			{
+				await _userService.CreateUserAsync(user, cancellationToken);
+			}
+			catch (CredentialsInUseException)
+			{
+				return Conflict();
+			}
+			
+			return Ok();
 		}
 
 		[HttpGet("users/{id:guid}")]
 		public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
 		{
-			var user = await _userService.GetUserByIdAsync(id, cancellationToken);
-			if (user == null)
+			UserDTO user;
+			try
+			{
+				user = await _userService.GetUserByIdAsync(id, cancellationToken);
+			}
+			catch (NotFoundException)
 			{
 				return NotFound();
 			}
@@ -52,15 +64,34 @@ namespace UserService.Controllers
 		[HttpDelete("users/{id:guid}")]
 		public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
 		{
-			await _userService.DeleteUserAsync(id, cancellationToken);
+			try
+			{
+				await _userService.DeleteUserAsync(id, cancellationToken);
+			}
+			catch (NotFoundException)
+			{
+				return NotFound();
+			}
+
 			return Ok();
 		}
-
 
 		[HttpPut("users")]
 		public async Task<IActionResult> Update([FromBody] UserDTO user, CancellationToken cancellationToken)
 		{
-			await _userService.UpdateUserAsync(user, cancellationToken);
+			try
+			{
+				await _userService.UpdateUserAsync(user, cancellationToken);
+			}
+			catch (NotFoundException)
+			{
+				return NotFound();
+			}
+			catch(CredentialsInUseException)
+			{
+				return Conflict();
+			}
+
 			return Ok();
 		}
 	}

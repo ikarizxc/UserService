@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UserService.Domain.DTOs;
+using UserService.Domain.Exceptions;
 using UserService.Domain.Interfaces.Services;
 
 namespace UserService.Controllers
@@ -18,7 +19,14 @@ namespace UserService.Controllers
 		[HttpPost("auth/register")]
 		public async Task<IActionResult> Register([FromBody] UserRegistrationDTO userRegistrationDto, CancellationToken cancellationToken)
 		{
-			await _authService.RegisterUserAsync(userRegistrationDto, cancellationToken);
+			try
+			{
+				await _authService.RegisterUserAsync(userRegistrationDto, cancellationToken);
+			}
+			catch (CredentialsInUseException)
+			{
+				return Conflict();
+			}
 
 			return Ok();
 		}
@@ -26,22 +34,32 @@ namespace UserService.Controllers
 		[HttpPost("auth/login")]
 		public async Task<IActionResult> Login([FromBody] UserLoginDTO userLoginDto, CancellationToken cancellationToken)
 		{
-			var token = await _authService.GenerateTokenAsync(userLoginDto, cancellationToken);
-			if (token == null)
+			TokenResponseDTO token;
+			try
 			{
-				return Unauthorized();
+				token = await _authService.GenerateTokenAsync(userLoginDto, cancellationToken);
 			}
+			catch (WrongCredentialsException)
+			{ 
+				return BadRequest();
+			}
+
 			return Ok(token);
 		}
 
 		[HttpPost("auth/refresh")]
 		public async Task<IActionResult> Refresh([FromBody] RefreshTokenDTO refreshToken, CancellationToken cancellationToken)
 		{
-			var token = await _authService.RefreshTokenAsync(refreshToken, cancellationToken);
-			if (token == null)
+			TokenResponseDTO token;
+			try
 			{
-				return Unauthorized();
+				token = await _authService.RefreshTokenAsync(refreshToken, cancellationToken);
 			}
+			catch (WrongRefreshTokenException)
+			{
+				return BadRequest();
+			}
+
 			return Ok(token);
 		}
 	}
