@@ -28,11 +28,7 @@ namespace UserService.API
 			{
 				options.UseNpgsql(_configuration.GetConnectionString("Postgres"));
 			});
-
-			var sp = services.BuildServiceProvider();
-
-			var dbContext = sp.GetService<UserServiceDbContext>();
-			dbContext.Database.Migrate();
+			services.Configure<AuthorizationOptions>(_configuration.GetSection(nameof(AuthorizationOptions)));
 
 			services.Configure<JwtOptions>(_configuration.GetSection(nameof(JwtOptions)));
 			var jwtOptions = _configuration.GetSection(nameof(JwtOptions)).Get<JwtOptions>();
@@ -107,6 +103,12 @@ namespace UserService.API
 				{
 					c.SwaggerEndpoint("/swagger/v1/swagger.json", "User Service");
 				});
+			}
+
+			using (var scope = app.ApplicationServices.CreateScope())
+			{
+				var dbContext = scope.ServiceProvider.GetRequiredService<UserServiceDbContext>();
+				dbContext.Database.Migrate();
 			}
 
 			app.UseRouting();

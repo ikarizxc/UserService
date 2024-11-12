@@ -4,7 +4,7 @@ using UserService.Domain.Models;
 
 namespace UserService.Infrastructure.Database.Configurations
 {
-	public class UsersConfiguration : IEntityTypeConfiguration<User>
+	public class UserConfiguration : IEntityTypeConfiguration<User>
 	{
 		public void Configure(EntityTypeBuilder<User> builder)
 		{
@@ -22,6 +22,12 @@ namespace UserService.Infrastructure.Database.Configurations
 			builder
 				.Property(x => x.CreatedAt)
 				.IsRequired();
+
+			builder.HasMany(x => x.Roles)
+				.WithMany(r => r.Users)
+				.UsingEntity<UserRole>(
+					l => l.HasOne<Role>().WithMany().HasForeignKey(r => r.RoleId),
+					r => r.HasOne<User>().WithMany().HasForeignKey(r => r.UserId));
 		}
 	}
 }

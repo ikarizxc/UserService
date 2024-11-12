@@ -6,5 +6,6 @@
         public string Username { get; set; }
         public string PasswordHash { get; set; }
 		public DateTime CreatedAt { get; set; }
-	}
+        public ICollection<Role> Roles { get; set; } = [];
+    }
 }
