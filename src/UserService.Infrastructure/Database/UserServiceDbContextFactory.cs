@@ -10,7 +10,7 @@ public class UserServiceDbContextFactory : IDesignTimeDbContextFactory<UserServi
 	public UserServiceDbContext CreateDbContext(string[] args)
 	{
 		var configuration = new ConfigurationBuilder()
-			.SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "../UserService.API"))
+			.SetBasePath(Directory.GetCurrentDirectory())
 			.AddJsonFile("appsettings.json")
 			.Build();
 
