@@ -18,8 +18,10 @@ namespace UserService.API.Controllers
 			_userService = userService;
 		}
 
-		[AuthorizePermission(Domain.Enums.PermissionEnum.Create)]
 		[HttpPost("users")]
+		[AuthorizePermission(Domain.Enums.PermissionEnum.Create)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status409Conflict)]
 		public async Task<IActionResult> Create([FromBody] UserCreateDTO user, CancellationToken cancellationToken)
 		{
 			try
@@ -34,9 +36,11 @@ namespace UserService.API.Controllers
 			return Ok();
 		}
 
-		[AuthorizePermission(Domain.Enums.PermissionEnum.Read)]
 		[HttpGet("users/{id:guid}")]
-		public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+		[AuthorizePermission(Domain.Enums.PermissionEnum.Read)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult<UserDTO>> GetById(Guid id, CancellationToken cancellationToken)
 		{
 			UserDTO user;
 			try
@@ -52,9 +56,11 @@ namespace UserService.API.Controllers
 		}
 
 
-		[AuthorizePermission(Domain.Enums.PermissionEnum.Read)]
 		[HttpGet("users")]
-		public async Task<IActionResult> Get(CancellationToken cancellationToken)
+		[AuthorizePermission(Domain.Enums.PermissionEnum.Read)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status204NoContent)]
+		public async Task<ActionResult<List<UserDTO>?>> Get(CancellationToken cancellationToken)
 		{
 			var users = await _userService.GetUsersAsync(cancellationToken);
 			if (users.ToList().Count == 0)
@@ -65,8 +71,10 @@ namespace UserService.API.Controllers
 			return Ok(users);
 		}
 
-		[AuthorizePermission(Domain.Enums.PermissionEnum.Delete)]
 		[HttpDelete("users/{id:guid}")]
+		[AuthorizePermission(Domain.Enums.PermissionEnum.Delete)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
 		{
 			try
@@ -81,8 +89,11 @@ namespace UserService.API.Controllers
 			return Ok();
 		}
 
-		[AuthorizePermission(Domain.Enums.PermissionEnum.Update)]
 		[HttpPut("users")]
+		[AuthorizePermission(Domain.Enums.PermissionEnum.Update)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status409Conflict)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> Update([FromBody] UserDTO user, CancellationToken cancellationToken)
 		{
 			try

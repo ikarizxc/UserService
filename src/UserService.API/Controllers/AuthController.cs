@@ -17,6 +17,8 @@ namespace UserService.API.Controllers
 		}
 
 		[HttpPost("auth/register")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status409Conflict)]
 		public async Task<IActionResult> Register([FromBody] UserRegistrationDTO userRegistrationDto, CancellationToken cancellationToken)
 		{
 			try
@@ -32,7 +34,9 @@ namespace UserService.API.Controllers
 		}
 
 		[HttpPost("auth/login")]
-		public async Task<IActionResult> Login([FromBody] UserLoginDTO userLoginDto, CancellationToken cancellationToken)
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<ActionResult<TokenResponseDTO>> Login([FromBody] UserLoginDTO userLoginDto, CancellationToken cancellationToken)
 		{
 			TokenResponseDTO token;
 			try
@@ -48,7 +52,9 @@ namespace UserService.API.Controllers
 		}
 
 		[HttpPost("auth/refresh")]
-		public async Task<IActionResult> Refresh([FromBody] RefreshTokenDTO refreshToken, CancellationToken cancellationToken)
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public async Task<ActionResult<TokenResponseDTO>> Refresh([FromBody] RefreshTokenDTO refreshToken, CancellationToken cancellationToken)
 		{
 			TokenResponseDTO token;
 			try
